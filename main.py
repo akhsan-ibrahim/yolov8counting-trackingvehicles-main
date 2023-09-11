@@ -13,10 +13,23 @@ data = my_file.read()
 class_list = data.split("\n")
 #print(class_list)
 
+count = 0
+
 tracker = Tracker() # define tracker from modul tracker.py
+
+# line point (y)
+cy1 = 322
+cy2 = 368
+offset = 6 # object detection radius
 
 while True:
   _,frame = cap.read() # define window video frame
+
+  count += 1
+
+  # bypass when count = multiple 3
+  if count % 3 != 0:
+    continue
 
   frame = cv2.resize(frame,(1020,500)) # size frame
   results = model.predict(frame) # prediction results of frame
@@ -50,6 +63,10 @@ while True:
       cv2.circle(frame,(cx,cy),4,(0,0,255),-1) # object dot
       cv2.putText(frame,str(id),(cx,cy),cv2.FONT_HERSHEY_COMPLEX,0.8,(0,255,255),2) # show object id
 
+  # set line (threshold)
+  cv2.line(frame,(274,cy1),(814,cy1),(255,255,255),1)
+  cv2.line(frame,(177,cy2),(927,cy2),(255,255,255),1)
+  
   # show window frame
   cv2.imshow("RGB", frame)
   if cv2.waitKey(1)&0xFF==27: # press Esc for quit
