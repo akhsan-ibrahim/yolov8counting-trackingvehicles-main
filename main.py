@@ -5,6 +5,16 @@ from tracker import *
 
 model=YOLO('yolov8s.pt') # pre-trained model --> s = small
 
+# get coordinate of cursor
+def RGB(event, x, y, flags, param):
+  if event == cv2.EVENT_MOUSEMOVE:
+    colorsBGR = [x, y]
+    print(colorsBGR)
+
+# window behaviour
+cv2.namedWindow('RGB')
+cv2.setMouseCallback('RGB', RGB)
+
 cap = cv2.VideoCapture('veh2.mp4')
 
 # access file object class list
@@ -12,8 +22,6 @@ my_file = open("coco.txt", "r")
 data = my_file.read()
 class_list = data.split("\n")
 #print(class_list)
-
-count = 0
 
 tracker = Tracker() # define tracker from modul tracker.py
 
@@ -24,12 +32,6 @@ offset = 6 # object detection radius
 
 while True:
   _,frame = cap.read() # define window video frame
-
-  count += 1
-
-  # bypass when count = multiple 3
-  if count % 3 != 0:
-    continue
 
   frame = cv2.resize(frame,(1020,500)) # size frame
   results = model.predict(frame) # prediction results of frame
@@ -64,9 +66,11 @@ while True:
       cv2.putText(frame,str(id),(cx,cy),cv2.FONT_HERSHEY_COMPLEX,0.8,(0,255,255),2) # show object id
 
   # set line (threshold)
-  cv2.line(frame,(274,cy1),(814,cy1),(255,255,255),1)
+  cv2.line(frame,(274,cy1),(814,cy1),(255,255,255),1) # line 1
+  cv2.putText(frame,('line 1'),(274,318),cv2.FONT_HERSHEY_COMPLEX,0.8,(0,255,255),2) # show line label
   cv2.line(frame,(177,cy2),(927,cy2),(255,255,255),1)
-  
+  cv2.putText(frame,('line 2'),(181,363),cv2.FONT_HERSHEY_COMPLEX,0.8,(0,255,255),2) # show line label
+
   # show window frame
   cv2.imshow("RGB", frame)
   if cv2.waitKey(1)&0xFF==27: # press Esc for quit
