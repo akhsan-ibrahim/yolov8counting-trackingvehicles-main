@@ -26,13 +26,15 @@ class_list = data.split("\n")
 tracker = Tracker() # define tracker from modul tracker.py
 
 # line point (y)
-cy1 = 329
+cy1 = 326
 cy2 = 330
-offset = 2 # object detection radius from line
+offset = 3 # object detection radius from line
 
 vh_down = {}
+vh_up = {}
 
-counter = []
+counter_down = []
+counter_up = []
 
 while True:
   _,frame = cap.read() # define window video frame
@@ -67,15 +69,25 @@ while True:
       cx = int(x3+x4)//2 # get x coordinate center
       cy = int(y3+y4)//2 # get y coordinate center
 
+      # count object going down
       if cy < (cy1+offset) and cy > (cy1-offset):
         vh_down[id] = cy
-
       if id in vh_down:
         if cy < (cy2+offset) and cy > (cy2-offset):
           cv2.circle(frame,(cx,cy),4,(0,0,255),-1) # object dot
           cv2.putText(frame,str(id),(cx,cy),cv2.FONT_HERSHEY_COMPLEX,0.8,(0,255,255),2) # show object id
-          if id not in counter:
-            counter.append(id)
+          if id not in counter_down and id not in counter_up:
+            counter_down.append(id)
+
+      # count object going up
+      if cy < (cy2+offset) and cy > (cy2-offset):
+        vh_up[id] = cy
+      if id in vh_up:
+        if cy < (cy1+offset) and cy > (cy1-offset):
+          cv2.circle(frame,(cx,cy),4,(0,0,255),-1) # object dot
+          cv2.putText(frame,str(id),(cx,cy),cv2.FONT_HERSHEY_COMPLEX,0.8,(0,255,255),2) # show object id
+          if id not in counter_up and id not in counter_down:
+            counter_up.append(id)
 
   # set line (threshold)
   cv2.line(frame,(274,cy1),(814,cy1),(255,255,255),1) # line 1
@@ -84,11 +96,13 @@ while True:
   cv2.putText(frame,('line 2'),(181,363),cv2.FONT_HERSHEY_COMPLEX,0.8,(0,255,255),2) # show line label
 
   # print(vh_down)
-  # print(counter)
+  # print(counter_down)
   # print(len(counter))
 
-  total_objects = len(counter)
-  cv2.putText(frame,('going down: ')+str(total_objects),(60,40),cv2.FONT_HERSHEY_COMPLEX,0.8,(0,255,255),2) # show sum of counting
+  total_objects_down = len(counter_down)
+  cv2.putText(frame,('going down: ')+str(total_objects_down),(60,40),cv2.FONT_HERSHEY_COMPLEX,0.8,(0,255,255),2) # show sum of counting
+  total_objects_up = len(counter_up)
+  cv2.putText(frame,('going up: ')+str(total_objects_up),(60,70),cv2.FONT_HERSHEY_COMPLEX,0.8,(0,255,255),2) # show sum of counting
 
   # show window frame
   cv2.imshow("RGB", frame)
