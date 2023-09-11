@@ -30,6 +30,8 @@ cy1 = 322
 cy2 = 368
 offset = 6 # object detection radius
 
+vh_down = {}
+
 while True:
   _,frame = cap.read() # define window video frame
 
@@ -62,14 +64,18 @@ while True:
       x3, y3, x4, y4, id = bbox # get coordinate and id
       cx = int(x3+x4)//2 # get x coordinate center
       cy = int(y3+y4)//2 # get y coordinate center
-      cv2.circle(frame,(cx,cy),4,(0,0,255),-1) # object dot
-      cv2.putText(frame,str(id),(cx,cy),cv2.FONT_HERSHEY_COMPLEX,0.8,(0,255,255),2) # show object id
+      if cy < (cy1+offset) and cy > (cy1-offset):
+        vh_down[id] = cy
+        cv2.circle(frame,(cx,cy),4,(0,0,255),-1) # object dot
+        cv2.putText(frame,str(id),(cx,cy),cv2.FONT_HERSHEY_COMPLEX,0.8,(0,255,255),2) # show object id
 
   # set line (threshold)
   cv2.line(frame,(274,cy1),(814,cy1),(255,255,255),1) # line 1
   cv2.putText(frame,('line 1'),(274,318),cv2.FONT_HERSHEY_COMPLEX,0.8,(0,255,255),2) # show line label
   cv2.line(frame,(177,cy2),(927,cy2),(255,255,255),1)
   cv2.putText(frame,('line 2'),(181,363),cv2.FONT_HERSHEY_COMPLEX,0.8,(0,255,255),2) # show line label
+
+  print(vh_down)
 
   # show window frame
   cv2.imshow("RGB", frame)
