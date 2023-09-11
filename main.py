@@ -26,18 +26,20 @@ class_list = data.split("\n")
 tracker = Tracker() # define tracker from modul tracker.py
 
 # line point (y)
-cy1 = 322
-cy2 = 368
-offset = 6 # object detection radius
+cy1 = 329
+cy2 = 330
+offset = 2 # object detection radius from line
 
 vh_down = {}
+
+counter = []
 
 while True:
   _,frame = cap.read() # define window video frame
 
   frame = cv2.resize(frame,(1020,500)) # size frame
   results = model.predict(frame) # prediction results of frame
-  # print(results)
+  # print(results):
 
   a = results[0].boxes.data # list of predictions
   # print(a)
@@ -64,10 +66,16 @@ while True:
       x3, y3, x4, y4, id = bbox # get coordinate and id
       cx = int(x3+x4)//2 # get x coordinate center
       cy = int(y3+y4)//2 # get y coordinate center
+
       if cy < (cy1+offset) and cy > (cy1-offset):
         vh_down[id] = cy
-        cv2.circle(frame,(cx,cy),4,(0,0,255),-1) # object dot
-        cv2.putText(frame,str(id),(cx,cy),cv2.FONT_HERSHEY_COMPLEX,0.8,(0,255,255),2) # show object id
+
+      if id in vh_down:
+        if cy < (cy2+offset) and cy > (cy2-offset):
+          cv2.circle(frame,(cx,cy),4,(0,0,255),-1) # object dot
+          cv2.putText(frame,str(id),(cx,cy),cv2.FONT_HERSHEY_COMPLEX,0.8,(0,255,255),2) # show object id
+          if id not in counter:
+            counter.append(id)
 
   # set line (threshold)
   cv2.line(frame,(274,cy1),(814,cy1),(255,255,255),1) # line 1
@@ -75,7 +83,12 @@ while True:
   cv2.line(frame,(177,cy2),(927,cy2),(255,255,255),1)
   cv2.putText(frame,('line 2'),(181,363),cv2.FONT_HERSHEY_COMPLEX,0.8,(0,255,255),2) # show line label
 
-  print(vh_down)
+  # print(vh_down)
+  # print(counter)
+  # print(len(counter))
+
+  total_objects = len(counter)
+  cv2.putText(frame,('going down: ')+str(total_objects),(60,40),cv2.FONT_HERSHEY_COMPLEX,0.8,(0,255,255),2) # show sum of counting
 
   # show window frame
   cv2.imshow("RGB", frame)
